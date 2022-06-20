@@ -48,7 +48,8 @@ export class GameComponent implements AfterViewInit {
 			this.y -= speed;
 			if (this.y < 0)
 			this.y += speed;
-		this.update();
+		// this.update();
+		window.requestAnimationFrame( () => this.update());
   }
 
 	// timerSub: Subscription;
@@ -81,6 +82,7 @@ export class GameComponent implements AfterViewInit {
 		this.ctx.fillRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
 		this.ctx.fillStyle = "white";
     this.ctx.fillRect(this.x, this.y, 15, 60);
+		window.requestAnimationFrame( () => this.update());
 	}
 
 	update() {
