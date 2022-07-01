@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { HostListener } from '@angular/core';
+import { Socket, io } from 'socket.io-client';
 
 var speed = 0;
 var speedU = -10;
@@ -71,7 +72,7 @@ export class GameComponent implements AfterViewInit {
 
 		this.ctx = this.canvas.nativeElement.getContext('2d');
 		this.update();
-		interv = setInterval( () => {this.update()}, 50);
+		// interv = setInterval( () => {this.update()}, 50);
 	}
 
 	isInBound(): boolean{
@@ -81,6 +82,12 @@ export class GameComponent implements AfterViewInit {
 		if ((this.y + speed < 0) || (this.y + padLen + speed >  window.innerHeight / 3))
 			return false;
 		return true;
+	}
+
+	private socket: any;
+	ngOnInit(): void {
+		this.socket = io("http://localhost:3000");
+		this.socket.emit("socketTest", "Hello World!");
 	}
 
 	update() {
