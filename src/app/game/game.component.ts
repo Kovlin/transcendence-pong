@@ -4,19 +4,11 @@ import { AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
 
-// var speed = 0;
-// var speedU = -10;
-// var speedD = 10;
 var interv: any;
 var padLen: number = 60;
 var padHei: number = 15;
 
 var ballR = 10;
-// var ballX = 120;
-// var ballY = 120;
-// var ballYS = -5;
-// var ballXS = 5;
-// var score = 0;
 
 @Component({
   selector: 'app-game',
@@ -65,43 +57,43 @@ export class GameComponent implements AfterViewInit {
 		// );
 	}
 
-	@HostListener('window:resize', ['$event'])
-	onResize() {
-		this.canvas.nativeElement.width = window.innerWidth / 2;
-		this.canvas.nativeElement.height = window.innerHeight / 3;
-	}
+	// @HostListener('window:resize', ['$event'])
+	// onResize() {
+	// 	this.canvas.nativeElement.width = window.innerWidth / 2;
+	// 	this.canvas.nativeElement.height = window.innerHeight / 3;
+	// }
 
 	private ctx: CanvasRenderingContext2D|any;
 
 	ngAfterViewInit() : void {
-		this.canvas.nativeElement.width = window.innerWidth / 2;
-		this.canvas.nativeElement.height = window.innerHeight / 3;
+		this.canvas.nativeElement.width = 650;
+		this.canvas.nativeElement.height = 480;
 
 		this.ctx = this.canvas.nativeElement.getContext('2d');
 		this.update();
 		interv = setInterval( () => {this.update()}, 50);
 	}
 
-	// isInBound(): boolean{
-	// 	console.log(this.y + padLen);
-	// 	let check =  window.innerHeight / 3;;
-	// 	console.log(check);
-	// 	if ((this.y + speed < 0) || (this.y + padLen + speed >  window.innerHeight / 3))
-	// 		return false;
-	// 	return true;
-	// }
-
 	private socket: any;
 	ngOnInit(): void {
 		this.socket = io("http://localhost:3000");
-		this.socket.emit("socketTest", "Hello World!");
+	}
+
+	start() {
+		this.socket.emit("go", [true]);
+		console.log("GO");
+	}
+
+	pause() {
+		this.socket.emit("go", [false]);
+		console.log("PAUSE");
 	}
 
 	update() {
-		//this.socket.emit("start", this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-
 		this.socket.emit("start", [this.canvas.nativeElement.width, this.canvas.nativeElement.height], (response: any) =>
 			{
+				if (response["gameOk"] != 1)
+					return;
 				console.log('ballX', response["ballX"]);
 				console.log('ballY', response["ballY"]);
 				console.log('X:', response["x"]);
@@ -112,68 +104,28 @@ export class GameComponent implements AfterViewInit {
 				let ballX = response["ballX"];
 				let ballY = response["ballY"];
 				let score = response["score"];
+				let score2 = response["score2"];
+
+				let x2 = response["x2"];
+				let y2 = response["y2"];
 
 				this.ctx.fillStyle = "black";
 				this.ctx.fillRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
 				this.ctx.fillStyle = "white";
 				this.ctx.fillRect(x, y, padHei, padLen);
+				this.ctx.fillRect(x2, y2, padHei, padLen);
 
 				this.ctx.fillRect(ballX, ballY, ballR, ballR);
 				console.log(ballX, ballY, ballR);
 
-				this.ctx.fillRect(this.canvas.nativeElement.height / 2, 0, 2, this.canvas.nativeElement.height);
+				this.ctx.fillRect(this.canvas.nativeElement.width / 2, 0, 2, this.canvas.nativeElement.height);
 				
 				this.ctx.font = "30px Comic Sans MS";
 				this.ctx.textAlign = "center";
-				this.ctx.fillText(`Score: ${score}`, 60, 30);
+				this.ctx.fillText(`Score: ${score}`, 70, 30);
+				this.ctx.fillText(`Score: ${score2}`, this.canvas.nativeElement.width - 70, 30);
 			}
-			
 		);
-
-	
-		// this.ctx.fillStyle = "black";
-		// this.ctx.fillRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-		// this.ctx.fillStyle = "white";
-		// this.ctx.fillRect(this.x, this.y, padHei, padLen);
-
-
-		// // if (this.isInBound())
-		// // 	this.y += speed;
-
-
-		// // if (ballY < ballR || ballY > this.canvas.nativeElement.height - ballR) {
-		// // 	ballYS = - ballYS;
-		// // }
-
-		// // if (ballX < ballR) {
-		// // 	ballX = 120;
-		// // 	ballY = 120;
-		// // 	ballYS = -5;
-		// // 	ballXS = 5;
-		// // 	score = 0;
-		// // }
-
-		// // if (ballX > this.canvas.nativeElement.width) {
-		// // 	ballX -= ballXS;
-		// // 	ballXS = -ballXS
-		// // }
-
-		// // ballY += ballYS;
-		// // ballX += ballXS;
-
-		// this.ctx.fillRect(ballX, ballY, ballR, ballR);
-		// console.log(ballX, ballY, ballR);
-
-		// // if (ballX - ballR <= padHei + this.x && ballX > this.x) {
-		// // 	if (ballY >= this.y && ballY <= this.y + padLen) {
-		// // 		ballXS = -ballXS;
-		// // 		score += 1;
-		// // 	}
-		// // }
-
-
-
-		// console.log("update call");
 	}
 
 	onDestroy(): void {
